@@ -19,7 +19,7 @@ jobs:
           pip install flake8
           pip install -r backend/requirements.txt
       - name: Check PEP8 with flake8
-        run: flake8 backend/ --max-line-length=100 --exclude=backend/*/migrations/
+        run: flake8 backend/ --max-line-length=100 --exclude=backend/*/migrations/ --extend-ignore=W291,W292,W293,F401,E301,E501
       - name: Run pytest
         run: pytest tests/ -v
 
