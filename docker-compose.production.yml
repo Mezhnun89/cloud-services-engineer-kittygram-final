@@ -8,7 +8,7 @@ services:
     env_file: .env
 
   backend:
-    image: USERNAME/kittygram_backend:latest
+    image: mezhnun/kittygram_backend:latest
     volumes:
       - static:/app/static
       - media:/app/media
@@ -17,12 +17,12 @@ services:
       - postgres
 
   frontend:
-    image: USERNAME/kittygram_frontend:latest
+    image: mezhnun/kittygram_frontend:latest
     volumes:
       - static:/app/build
 
   gateway:
-    image: USERNAME/kittygram_gateway:latest
+    image: mezhnun/kittygram_gateway:latest
     ports:
       - 9000:80
     volumes:
