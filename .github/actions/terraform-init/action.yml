@@ -1,0 +1,21 @@
+name: Initialize Terraform with private credentials
+description: Credentials are provided through job environment variables.
+runs:
+  using: composite
+  steps:
+    - uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.13.5
+        terraform_wrapper: false
+    - shell: bash
+      run: |
+        set -euo pipefail
+        umask 077
+        : "${YC_SERVICE_ACCOUNT_JSON:?Set YC_SERVICE_ACCOUNT_JSON secret}"
+        : "${AWS_ACCESS_KEY_ID:?Set AWS_ACCESS_KEY_ID secret}"
+        : "${AWS_SECRET_ACCESS_KEY:?Set AWS_SECRET_ACCESS_KEY secret}"
+        : "${TF_STATE_BUCKET:?Set TF_STATE_BUCKET variable}"
+        key_file="$RUNNER_TEMP/yc-key.json"
+        printf '%s' "$YC_SERVICE_ACCOUNT_JSON" > "$key_file"
+        echo "YC_SERVICE_ACCOUNT_KEY_FILE=$key_file" >> "$GITHUB_ENV"
+        terraform -chdir=infra init -input=false -backend-config="bucket=$TF_STATE_BUCKET"

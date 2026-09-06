@@ -1,0 +1,38 @@
+#cloud-config
+users:
+  - default
+  - name: deploy
+    shell: /bin/bash
+    groups: [sudo, docker]
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ${ssh_public_key}
+groups:
+  - docker
+ssh_pwauth: false
+disable_root: true
+write_files:
+  - path: /usr/local/sbin/install-kittygram-docker
+    permissions: '0755'
+    content: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get -o DPkg::Lock::Timeout=600 -o Acquire::Retries=5 update
+      apt-get -o DPkg::Lock::Timeout=600 -o Acquire::Retries=5 install -y ca-certificates curl
+      install -m 0755 -d /etc/apt/keyrings
+      curl --fail --silent --show-error --retry 5 https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+      chmod a+r /etc/apt/keyrings/docker.asc
+      . /etc/os-release
+      echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $VERSION_CODENAME stable" > /etc/apt/sources.list.d/docker.list
+      apt-get -o DPkg::Lock::Timeout=600 -o Acquire::Retries=5 update
+      apt-get -o DPkg::Lock::Timeout=600 -o Acquire::Retries=5 install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+      systemctl enable --now docker
+      install -d -o deploy -g deploy -m 0700 /home/deploy/kittygram
+      docker version
+      docker compose version
+runcmd:
+  - [bash, /usr/local/sbin/install-kittygram-docker]
+  # Read this public host key in the trusted YC serial console before first SSH.
+  - [sh, -c, 'echo KITTYGRAM_SSH_HOST_KEY; cat /etc/ssh/ssh_host_ed25519_key.pub; ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub']
