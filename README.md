@@ -3,9 +3,11 @@
 Учебный проект Яндекс Практикума. Автор: [Mezhnun89](https://github.com/Mezhnun89).
 Репозиторий продолжает Kittygram из дисциплины CI/CD и добавляет инфраструктуру Yandex Cloud.
 
-**Статус:** код подготовлен; создание новой облачной ВМ и проверку на ней ещё необходимо выполнить.
-Адрес в `tests.yml` до первого `Terraform infrastructure → apply` относится к предыдущему развёртыванию.
-Успешный старый workflow не подтверждает готовность этой инфраструктуры.
+**Развёрнуто в Yandex Cloud 6 сентября 2026 года.**
+Приложение: [Kittygram](http://93.77.186.223:9000/).
+[Terraform apply](https://github.com/Mezhnun89/cloud-services-engineer-kittygram-final/actions/runs/34033792732)
+и [деплой с 11 автотестами](https://github.com/Mezhnun89/cloud-services-engineer-kittygram-final/actions/runs/34034021505)
+завершились успешно. Адрес в `tests.yml` записан автоматически из Terraform output.
 
 ## Что разворачивается
 
@@ -14,7 +16,7 @@
 - Входящие TCP: **22** для SSH и **9000** для gateway. Исходящий трафик разрешён полностью.
 - `cloud-init` создаёт пользователя `deploy`, настраивает SSH по ключу, устанавливает Docker Engine и Compose plugin.
 - PostgreSQL, Django/Gunicorn, сборка React и Nginx запускаются через Compose. Порт PostgreSQL наружу не опубликован.
-- Закрытый S3-бакет с версиями хранит `kittygram/production.tfstate`. Бакет создаётся заранее отдельным `bootstrap/`.
+- Закрытый S3-бакет с версиями хранит `kittygram/production.tfstate`. Он создан заранее через S3 API; `bootstrap/` содержит альтернативную Terraform-конфигурацию бакета.
 
 ```mermaid
 flowchart TD
@@ -31,10 +33,10 @@ flowchart TD
 
 Подробная последовательность: [docs/SETUP.md](docs/SETUP.md).
 Конспект для подготовки к сдаче: [docs/KONSPEKT.md](docs/KONSPEKT.md).
-Проверки и оставшиеся шаги: [docs/VERIFICATION.md](docs/VERIFICATION.md).
+Результаты проверок: [docs/VERIFICATION.md](docs/VERIFICATION.md).
 
-1. Получить у куратора промокод и подготовить отдельный учебный каталог Yandex Cloud.
-2. Настроить сервисный аккаунт, создать S3-бакет из `bootstrap/`, добавить GitHub Secrets/Variables.
+1. Получить у куратора промокод и подготовить учебный каталог Yandex Cloud.
+2. Настроить сервисный аккаунт, заранее создать закрытый S3-бакет (через `bootstrap/` или API), добавить GitHub Secrets/Variables.
 3. Объединить ветку с `main` после успешных проверок PR.
 4. Actions → **Terraform infrastructure** → Run workflow → `plan`, изучить список ресурсов; затем `apply`.
 5. Проверить ключ SSH-сервера в консоли YC и добавить `SSH_KNOWN_HOSTS`.
@@ -85,5 +87,5 @@ Backend-тесты проверяют доступ гостей, защиту ч
 
 После зачёта и сохранения нужных данных отключить `DEPLOY_ENABLED`, запустить Terraform `destroy`.
 Эта операция удаляет ВМ **вместе с БД и фотографиями на диске**, а также сеть и публичный IP.
-S3-бакет и bootstrap-state сохраняются отдельно: их не удаляет основной workflow.
+S3-бакет сохраняется отдельно: их не удаляет основной workflow.
 Для восстановления БД нужны `pg_dump` и копия media; Terraform state содержит инфраструктуру, а не пользовательские данные.
