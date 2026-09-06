@@ -1,37 +1,45 @@
-version: '3.3'
-
+name: kittygram
 services:
   postgres:
     image: postgres:13
+    restart: unless-stopped
+    env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
-    env_file: .env
-
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 30
   backend:
-    image: mezhnun/kittygram_backend:latest
+    image: ${DOCKERHUB_USERNAME:-mezhnun}/kittygram_backend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file: .env
     volumes:
       - static:/app/static
       - media:/app/media
-    env_file: .env
     depends_on:
-      - postgres
-
+      postgres:
+        condition: service_healthy
   frontend:
-    image: mezhnun/kittygram_frontend:latest
-    volumes:
-      - static:/app/build
-
-  gateway:
-    image: mezhnun/kittygram_gateway:latest
-    ports:
-      - 9000:80
+    image: ${DOCKERHUB_USERNAME:-mezhnun}/kittygram_frontend:${IMAGE_TAG:-latest}
+    restart: 'no'
+    command: [sh, -c, 'cp -a /app/build/. /static/']
     volumes:
       - static:/static
-      - media:/media
+  gateway:
+    image: ${DOCKERHUB_USERNAME:-mezhnun}/kittygram_gateway:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    ports:
+      - '${GATEWAY_PORT:-9000}:80'
+    volumes:
+      - static:/static:ro
+      - media:/media:ro
     depends_on:
-      - backend
-      - frontend
-
+      backend:
+        condition: service_started
+      frontend:
+        condition: service_completed_successfully
 volumes:
   pg_data:
   static:

@@ -1,0 +1,5 @@
+cloud_id       = "your-cloud-id"
+folder_id      = "your-folder-id"
+ssh_public_key = "ssh-ed25519 REPLACE_WITH_PUBLIC_KEY"
+zone           = "ru-central1-a"
+gateway_port   = 9000

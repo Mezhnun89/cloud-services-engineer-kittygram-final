@@ -1,0 +1,2 @@
+bucket = "your-globally-unique-kittygram-state-bucket"
+# Credentials are AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY, not HCL values.
