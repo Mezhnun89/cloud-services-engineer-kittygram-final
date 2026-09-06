@@ -7,10 +7,12 @@
 - Frontend: 1 существующий тест входной страницы пройден.
 - Проверки файлов Практикума: 7 из 7 пройдены.
 - Terraform fmt и загрузка провайдера 0.225.0: выполнены.
-- Полный Terraform validate переносится на GitHub runner: запуск провайдера в локальной среде ограничен.
+- GitHub Actions: Terraform validate для infra/ и bootstrap/, Compose syntax, backend с PostgreSQL13 и frontend — пройдены.
+- Сборка React выполнена локально; осталось прежнее предупреждение о неиспользуемой переменной в sign-in.
 
-Workflow CI дополнительно выполняет те же backend-тесты с PostgreSQL, validate обеих Terraform-конфигураций
-и проверку `docker compose config`. Фактический результат нужно смотреть на последнем коммите PR.
+Подтверждение: [успешный CI run 34029433131](https://github.com/Mezhnun89/cloud-services-engineer-kittygram-final/actions/runs/34029433131)
+для коммита `ef960cca1031bd68101be8699b2ea7ace32d92e1`. Все три job завершились успешно.
+Следующий коммит изменяет только этот отчёт; код приложения и инфраструктуры остаётся тем же.
 
 ## До сдачи требуется выполнить
 
